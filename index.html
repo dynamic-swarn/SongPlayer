@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicPlayer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/3320c68874.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="music-player">
+            <nav>
+                <div class="circle" onclick="previousSong()">
+                    <i class="fa-solid fa-angle-left"></i>
+                </div>
+                <div class="circle" onclick="nextSong()">
+                    <i class="fa-solid fa-angle-right"></i>
+                </div>
+            </nav>
+
+            <h3 id="song-title">Song 1</h3>
+            <p id="song-artist">Artist 1</p>
+
+            <audio id="song" controls>
+                <source src="media/song.mp4" type="audio/mp4">
+            </audio>
+
+            <input type="range" value="0" id="progress">
+            <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+
+            <div class="controls">
+                <div onclick="rewind()"><i class="fa-solid fa-backward"></i></div>
+                <div id="ctrlIcon" onclick="playPause()"><i class="fa-solid fa-play"></i></div>
+                <div onclick="forward()"><i class="fa-solid fa-forward"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const songs = [
+            { title: "Song 1", artist: "Artist 1", src: "media/song.mp4" },
+            { title: "Song 2", artist: "Artist 2", src: "media/song2.mp4" },
+            { title: "Song 3", artist: "Artist 3", src: "media/song3.mp4" },
+            { title: "Song 4", artist: "Artist 4", src: "media/song4.mp4" },
+            { title: "Song 5", artist: "Artist 5", src: "media/song5.mp4" },
+            { title: "Song 6", artist: "Artist 6", src: "media/song6.mp4" }
+        ];
+
+        let currentSongIndex = 0;
+        const song = document.getElementById("song");
+        const ctrlIcon = document.getElementById("ctrlIcon");
+        const progress = document.getElementById("progress");
+        const volumeSlider = document.getElementById("volume");
+
+        function loadSong(index) {
+            const current = songs[index];
+            song.src = current.src;
+            document.getElementById("song-title").innerText = current.title;
+            document.getElementById("song-artist").innerText = current.artist;
+            song.load();
+        }
+
+        song.onloadedmetadata = function () {
+            progress.max = song.duration;
+            progress.value = song.currentTime;
+        };
+
+        song.ontimeupdate = function () {
+            progress.value = song.currentTime;
+        };
+
+        progress.oninput = function () {
+            song.currentTime = progress.value;
+        };
+
+        volumeSlider.oninput = function () {
+            song.volume = volumeSlider.value;
+        };
+
+        song.onended = function () {
+            nextSong();
+        };
+
+        function playPause() {
+            if (song.paused) {
+                song.play();
+                ctrlIcon.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            } else {
+                song.pause();
+                ctrlIcon.innerHTML = '<i class="fa-solid fa-play"></i>';
+            }
+        }
+
+        function rewind() {
+            song.currentTime = Math.max(0, song.currentTime - 10);
+        }
+
+        function forward() {
+            song.currentTime = Math.min(song.duration, song.currentTime + 10);
+        }
+
+        function previousSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+            song.play();
+            ctrlIcon.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadSong(currentSongIndex);
+            song.play();
+            ctrlIcon.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        }
+
+        loadSong(currentSongIndex);
+    </script>
+</body>
+</html>
